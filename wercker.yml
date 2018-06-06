@@ -1,0 +1,148 @@
+box:
+  id: quay.io/cashrewards/php-base-ms
+  username: $QUAYIO_USERNAME
+  password: $QUAYIO_PASSWORD
+  tag: master
+  registry: https://quay.io
+
+build:
+  steps:
+    - script:
+        name: update dependencies
+        code: |
+          pwd
+          ls -al $WERCKER_SOURCE_DIR
+          ls -al $WERCKER_OUTPUT_DIR
+
+
+
+push-to-quayio:
+  steps:
+    - script:
+        name: test
+        code: |
+          pwd
+          ls -al $WERCKER_SOURCE_DIR
+
+    - script:
+        name: copy config
+        code: |
+          cp -Rp $WERCKER_SOURCE_DIR/docker-config/php-fpm/conf/laravel.conf /usr/local/etc/php-fpm.d/laravel.conf
+          cp -Rp $WERCKER_SOURCE_DIR/docker-config/nginx/conf.d/ /etc/nginx/conf.d/
+    - script:
+        name: copy source code
+        code: |
+           cp -Rp $WERCKER_SOURCE_DIR/src/* /var/www/html
+    - script:
+        name: update dependencies
+        code: |
+          export COMPOSER_ALLOW_SUPERUSER=1
+          composer update --no-interaction -d=/var/www/html
+    - script:
+        name: set permission
+        code: |
+           chown -R :www-data /var/www/html
+           chmod -R ug+rwx /var/www/html/storage /var/www/html/bootstrap/cache
+
+    - internal/docker-push:
+        username: $QUAYIO_USERNAME
+        password: $QUAYIO_PASSWORD
+        repository: quay.io/cashrewards/ms-search
+        registry: https://quay.io
+        tag: $WERCKER_GIT_BRANCH
+        working-dir: /var/www/html
+        cmd: /run.sh
+        disable-sync: false
+        volumes: /etc/nginx/conf.d/,/var/www/html/
+
+  after-steps:
+      - install-packages:
+          packages: curl
+      - slack-notifier:
+          url: $SLACK_WEBHOOK_URL
+          channel: releases
+          username: wercker
+
+#####
+#
+#   Register Task Definition
+#
+# For your Local test :
+#   wercker --environment ./wercker/.env.wercker.deploy deploy --pipeline deploy-to-ecs-task-definition
+#
+deploy-to-ecs-task-definition:
+  box: quay.io/steven_rho/aws-cli
+  #box: python:3-slim
+  steps:
+    ###
+    - steven-rho/aws-ecs-task-definition@0.0.1:
+        name: Setup Task Definition (ms-search)
+        key: $STEP_AWS_ACCESS_KEY_ID
+        secret: $STEP_AWS_SECRET_ACCESS_KEY
+        region: $STEP_AWS_DEFAULT_REGION
+        task-definition-name: ms-search
+        container-memory: 1024
+        container_command: null
+        task_definition_template: wercker/task_definition/task_definition_with_nginx.json.template
+
+    ###
+    - steven-rho/aws-ecs-task-definition@0.0.1:
+        name: Setup Task Definition (ms-search-log-worker)
+        key: $STEP_AWS_ACCESS_KEY_ID
+        secret: $STEP_AWS_SECRET_ACCESS_KEY
+        region: $STEP_AWS_DEFAULT_REGION
+        task-definition-name: ms-search-log-worker
+        container-memory: 1024
+        container_command: null
+        container_command: '["/usr/local/bin/php","/var/www/html/artisan","queue:work","sqs","--queue=SearchMS-searchResultClickLog"]'
+        task_definition_template: wercker/task_definition/task_definition.json.template
+
+  after-steps:
+      - install-packages:
+          packages: curl
+      - slack-notifier:
+          url: $SLACK_WEBHOOK_URL
+          channel: releases
+          username: wercker
+
+
+#####
+#
+#   Register Service
+#
+# For your Local test :
+#   wercker --environment ./wercker/.env.wercker.deploy deploy --pipeline deploy-to-ecs-service
+#
+deploy-to-ecs-service:
+  box: quay.io/steven_rho/aws-cli
+  steps:
+    - steven-rho/aws-ecs-service:
+        name: Setup Service (ms-search)
+        key: $STEP_AWS_ACCESS_KEY_ID
+        secret: $STEP_AWS_SECRET_ACCESS_KEY
+        region: $STEP_AWS_DEFAULT_REGION
+        cluster-name: $STEP_CLUSTER
+        service-name: svc-ms-search-dyn-port
+        task-definition-name: ms-search
+        desired-count: $STEP_DESIRED_COUNT
+        service-template: wercker/service/service.json.template
+    ###
+    - steven-rho/aws-ecs-service:
+        name: Setup Service (ms-search-log-worker)
+        key: $STEP_AWS_ACCESS_KEY_ID
+        secret: $STEP_AWS_SECRET_ACCESS_KEY
+        region: $STEP_AWS_DEFAULT_REGION
+        cluster-name: $STEP_CLUSTER
+        service-name: svc-ms-search-log-worker
+        task-definition-name: ms-search-log-worker
+        desired-count: $STEP_DESIRED_COUNT
+        service-template: wercker/service/service.json.template
+
+  after-steps:
+      - install-packages:
+          packages: curl
+      - slack-notifier:
+          url: $SLACK_WEBHOOK_URL
+          channel: releases
+          username: wercker
+

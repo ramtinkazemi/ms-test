@@ -1,0 +1,59 @@
+version: "2"
+
+services:
+  php-fpm:
+    container_name: search-php-fpm
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: quay.io/cashrewards/search-ms:local
+    volumes:
+     - ./docker-config/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+     - ./src:/var/www/html
+
+#    ports:
+#      - "9000:9000"
+
+    links:
+      - "elasticsearch"
+      - "redis"
+
+    # Instead of using 'environment' configuration option,
+    # we use 'env_file' configuration option with '.env' file
+    # as it is easier to handle variables.
+    #env_file:
+    #  - .env
+
+  nginx:
+    container_name: search-nginx
+    image: nginx
+    ports:
+     - "80:80"
+    links:
+     - "php-fpm"
+    volumes_from:
+     - php-fpm:ro
+        # from search-php-fpm container
+        # /etc/nginx/conf.d/default.conf
+        # /var/www/html   [ image default = /usr/share/nginx/html ]
+
+  redis:
+    container_name: search-redis
+    image: redis
+
+
+  elasticsearch:
+    container_name: search-elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.0
+    environment: ['http.host=0.0.0.0', 'transport.host=127.0.0.1']
+    ports: ['127.0.0.1:9200:9200']
+    logging:
+      driver: none
+  kibana:
+    container_name: search-kibana
+    image: docker.elastic.co/kibana/kibana:5.5.0
+    ports: ['127.0.0.1:5601:5601']
+    depends_on: ['elasticsearch']
+    environment: ['server.host=localhost']
+    logging:
+      driver: none

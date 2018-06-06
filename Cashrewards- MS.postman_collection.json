@@ -1,0 +1,510 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Cashrewards: MS",
+		"_postman_id": "5ff1d44b-9907-57f8-75dd-aa34358828a0",
+		"description": "Cashrewards Microservice",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "{{mshost}}/api/v1/search?q=microsoft&per_page=n",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"tests[\"Content-Type is application/json\"] = postman.getResponseHeader(\"Content-Type\") == \"application/json\";\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"tests[\"Summary\"] = !!jsonData['summary'];\r",
+							"\r",
+							"var summary_schema = {\r",
+							" \"count\": \"integer\",\r",
+							" \"page\": \"integer\",\r",
+							" \"per_page\": \"integer\",\r",
+							" \"total\": \"integer\"\r",
+							"};\r",
+							"\r",
+							"tests[\"Summary valid\"] = tv4.validate(jsonData['summary'], summary_schema);\r",
+							"\r",
+							"tests[\"Items\"] = !!jsonData['items'];\r",
+							"var items_schema = {\r",
+							" \"keywords\": \"string\",\r",
+							" \"commissiontype\": \"string\",\r",
+							" \"smallimageurlsecure\": \"string\",\r",
+							" \"descriptionlong\": \"string\",\r",
+							" \"basicterms\": \"string\",\r",
+							" \"status\": \"integer\",\r",
+							" \"regularimageurlsecure\": \"string\",\r",
+							" \"extentedterms\": \"string\",\r",
+							" \"merchantname\": \"string\",\r",
+							" \"membercommissionrate\": \"float\",\r",
+							" \"cashbackrate\": \"float\",\r",
+							" \"offercount\": \"integer\",\r",
+							" \"trackinglink\": \"string\",\r",
+							" \"merchantid\": \"integer\",\r",
+							" \"clientcommissionrate\": \"float\",\r",
+							" \"websiteurl\": \"string\", \r",
+							" \"mediumimageurlsecure\": \"string\",\r",
+							" \"client_id\": \"string\",\r",
+							" \"weight\": \"integer\",\r",
+							" \"relevance\": \"float\" \r",
+							"};\r",
+							"\r",
+							"for(var i = 0, l = jsonData['items'].length; i < l; i++) {\r",
+							"    tests[\"Items_\"+i] = tv4.validate(jsonData['items'][i], items_schema);\r",
+							"}\r",
+							"\r",
+							"tests[\"Per_page = n == 10\"] = jsonData['summary']['per_page'] === 10;\r",
+							"tests[\"Count <= Per_page\"] = jsonData['summary']['count'] <=  jsonData['summary']['per_page'];\r",
+							"tests[\"Count <= Total\"] = jsonData['summary']['count'] <=  jsonData['summary']['total'];\r",
+							"\r",
+							"tests[\"Response time is less than 50ms\"] = responseTime < 50;\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "{{mshost}}/api/v1/search?q=microsoft&per_page=n1",
+					"host": [
+						"{{mshost}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "microsoft"
+						},
+						{
+							"key": "per_page",
+							"value": "n1"
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": "Common test"
+			},
+			"response": []
+		},
+		{
+			"name": "Auto complete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"tests[\"Content-Type is application/json\"] = postman.getResponseHeader(\"Content-Type\") == \"application/json\";\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"tests[\"Summary\"] = !!jsonData['summary'];\r",
+							"\r",
+							"var summary_schema = {\r",
+							" \"count\": \"integer\",\r",
+							" \"page\": \"integer\",\r",
+							" \"per_page\": \"integer\",\r",
+							" \"total\": \"integer\"\r",
+							"};\r",
+							"\r",
+							"tests[\"Summary valid\"] = tv4.validate(jsonData['summary'], summary_schema);\r",
+							"\r",
+							"tests[\"Items\"] = !!jsonData['items'];\r",
+							"var items_schema = {\r",
+							" \"keywords\": \"string\",\r",
+							" \"commissiontype\": \"string\",\r",
+							" \"smallimageurlsecure\": \"string\",\r",
+							" \"descriptionlong\": \"string\",\r",
+							" \"basicterms\": \"string\",\r",
+							" \"status\": \"integer\",\r",
+							" \"regularimageurlsecure\": \"string\",\r",
+							" \"extentedterms\": \"string\",\r",
+							" \"merchantname\": \"string\",\r",
+							" \"membercommissionrate\": \"float\",\r",
+							" \"cashbackrate\": \"float\",\r",
+							" \"offercount\": \"integer\",\r",
+							" \"trackinglink\": \"string\",\r",
+							" \"merchantid\": \"integer\",\r",
+							" \"clientcommissionrate\": \"float\",\r",
+							" \"websiteurl\": \"string\", \r",
+							" \"mediumimageurlsecure\": \"string\",\r",
+							" \"client_id\": \"string\",\r",
+							" \"weight\": \"integer\",\r",
+							" \"relevance\": \"float\" \r",
+							"};\r",
+							"\r",
+							"for(var i = 0, l = jsonData['items'].length; i < l; i++) {\r",
+							"    tests[\"Items_\"+i] = tv4.validate(jsonData['items'][i], items_schema);\r",
+							"}\r",
+							"\r",
+							"tests[\"Per_page = n == 10\"] = jsonData['summary']['per_page'] === 10;\r",
+							"tests[\"Count <= Per_page\"] = jsonData['summary']['count'] <=  jsonData['summary']['per_page'];\r",
+							"tests[\"Count <= Total\"] = jsonData['summary']['count'] <=  jsonData['summary']['total'];\r",
+							"\r",
+							"tests[\"Response time is less than 50ms\"] = responseTime < 50;\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "{{mshost}}/api/v1/autocomplete?q=wwe",
+					"host": [
+						"{{mshost}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"autocomplete"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "wwe",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": "Common test"
+			},
+			"response": []
+		},
+		{
+			"name": "{{mshost}}/api/v1/search?q=microsoft&per_page=20&order=relevance",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"tests[\"Content-Type is application/json\"] = postman.getResponseHeader(\"Content-Type\") == \"application/json\";\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"// Sort the array elements with a function that compares array elements.\r",
+							"var sortedData = jsonData['items'].sort(function(a, b){\r",
+							"    if(a.weight==b.weight)\r",
+							"        return b.clickouts - a.clickouts;\r",
+							"    if(a.weight>b.weight)\r",
+							"        return a.clickouts - b.clickouts;\r",
+							"    else\r",
+							"        return b.clickouts - a.clickouts;\r",
+							"});\r",
+							"\r",
+							"tests[\"jsonData==sortedData\"]=jsonData['items']===sortedData;"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "{{mshost}}/api/v1/search?q=microsoft&per_page=20&sort=relevance",
+					"host": [
+						"{{mshost}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "microsoft"
+						},
+						{
+							"key": "per_page",
+							"value": "20"
+						},
+						{
+							"key": "sort",
+							"value": "relevance"
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": "Sort by relevance"
+			},
+			"response": []
+		},
+		{
+			"name": "{{mshost}}/api/v1/search?q=microsoft&per_page=20&order=a-z",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"tests[\"Content-Type is application/json\"] = postman.getResponseHeader(\"Content-Type\") == \"application/json\";\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"var last = null;\r",
+							"for(var i = 0, l = jsonData['items'].length; i < l; i++) {\r",
+							"    if (!last)\r",
+							"        last = jsonData['items'][i]['merchantname'];\r",
+							"    tests[\"Items_\"+i] = jsonData['items'][i]['merchantname'].toLowerCase() >= last.toLowerCase();\r",
+							"    last = jsonData['items'][i]['merchantname'];\r",
+							"}\r",
+							"\r",
+							"\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "{{mshost}}/api/v1/search?q=air&per_page=20&sort=merchantname:asc",
+					"host": [
+						"{{mshost}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "air"
+						},
+						{
+							"key": "per_page",
+							"value": "20"
+						},
+						{
+							"key": "sort",
+							"value": "merchantname:asc"
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": "A-Z sorting"
+			},
+			"response": []
+		},
+		{
+			"name": "{{mshost}}/api/v1/search?q=microsoft&per_page=20&order=merchantname:desc",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"tests[\"Content-Type is application/json\"] = postman.getResponseHeader(\"Content-Type\") == \"application/json\";\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"var last = null;\r",
+							"for(var i = 0, l = jsonData['items'].length; i < l; i++) {\r",
+							"    if (!last)\r",
+							"        last = jsonData['items'][i]['merchantname'];\r",
+							"    tests[\"Items_\"+i] = jsonData['items'][i]['merchantname'].toLowerCase() <= last.toLowerCase();\r",
+							"    last = jsonData['items'][i]['merchantname'];\r",
+							"}\r",
+							"\r",
+							"\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "{{mshost}}/api/v1/search?q=microsoft&per_page=20&sort=merchantname:desc",
+					"host": [
+						"{{mshost}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "microsoft"
+						},
+						{
+							"key": "per_page",
+							"value": "20"
+						},
+						{
+							"key": "sort",
+							"value": "merchantname:desc"
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": "Descent sorting by Merchant name"
+			},
+			"response": []
+		},
+		{
+			"name": "{{mshost}}/api/v1/search?q=microsoft&per_page=20&order=cashback",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;\r",
+							"tests[\"Content-Type is application/json\"] = postman.getResponseHeader(\"Content-Type\") == \"application/json\";\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"// Sort the array elements with a function that compares array elements.\r",
+							"var sortedData = jsonData['items'].sort(function(a, b){\r",
+							"    if(a.commissiontype==b.commissiontype)\r",
+							"        return b.cashbackrate - a.cashbackrate;\r",
+							"    if(a.commissiontype>b.commissiontype)\r",
+							"        return a.cashbackrate - b.cashbackrate;\r",
+							"    else\r",
+							"        return b.cashbackrate - a.cashbackrate;\r",
+							"});\r",
+							"\r",
+							"tests[\"jsonData==sortedData\"]=jsonData['items']===sortedData;\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "{{mshost}}/api/v1/search?q=air&per_page=30&sort=cashback",
+					"host": [
+						"{{mshost}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "air"
+						},
+						{
+							"key": "per_page",
+							"value": "30"
+						},
+						{
+							"key": "sort",
+							"value": "cashback"
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": "Cashbackrate sort"
+			},
+			"response": []
+		},
+		{
+			"name": "Log search click",
+			"request": {
+				"url": "{{mshost}}/api/v1/click/log",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "timestamp",
+							"value": "2017-09-22 00:49:58.759007",
+							"type": "text",
+							"description": "",
+							"disabled": true
+						},
+						{
+							"key": "merchantId",
+							"value": "56",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "merchantName",
+							"value": "Test Merchant",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "memberId",
+							"value": "132",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "clientId",
+							"value": "265",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "searchTerm",
+							"value": "test search term",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "searchWeight",
+							"value": "62.52",
+							"type": "text",
+							"description": ""
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
