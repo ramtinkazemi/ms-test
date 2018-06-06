@@ -1,7 +1,7 @@
 # BASE PHP-FPM ---------------------------------------------------------------------------------------------
 # This Base Php-FPM docker image can be seperated into other repository
 # ----------------------------------------------------------------------------------------------------------
-FROM quay.io/cashrewards/php-base-ms
+FROM 752830773963.dkr.ecr.ap-southeast-2.amazonaws.com/php-base-ms
 
 # PHP-FPM Config-------------------------------------------------------------------------------------------
 # ..
