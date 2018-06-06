@@ -13,6 +13,7 @@ version: 0.1
 phases:
   pre_build:
     commands:
+      - echo ${AWS_KEY}
       - printf "${AWS_KEY}\n${AWS_SEC}\n${AWS_REG}\n${AWS_OUT}\n" | aws configure --profile ${AWS_PROF}
       - $(aws ecr get-login --profile ${AWS_PROF})
   build:
